@@ -1,19 +1,8 @@
+// api/webhook.js
 export default async function handler(req, res) {
-  console.log('✅ Ultra simple function called');
-  
-  try {
-    // Просто возвращаем успешный ответ
-    return res.status(200).json({ 
-      status: 'SUCCESS',
-      message: 'Ultra simple function is working!',
-      timestamp: new Date().toISOString()
-    });
-    
-  } catch (error) {
-    console.error('Error:', error);
-    return res.status(200).json({ 
-      status: 'ERROR', 
-      error: error.message 
-    });
-  }
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'Webhook is working!',
+    timestamp: new Date().toISOString()
+  });
 }
