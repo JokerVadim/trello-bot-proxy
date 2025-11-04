@@ -1,0 +1,6 @@
+{
+  "name": "trello-bot-proxy",
+  "version": "1.0.0",
+  "description": "Proxy between Telegram and GAS",
+  "type": "module"
+}
