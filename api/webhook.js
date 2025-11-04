@@ -10,18 +10,53 @@ export default async function handler(req, res) {
         const chatId = message.chat.id;
         console.log('Processing /start from:', chatId);
         
-        // ПРОСТОЙ ответ без GAS
-        return res.status(200).json({ 
-          status: 'OK',
-          message: '✅ Vercel работает! Chat ID: ' + chatId
-        });
+        // Твои константы
+        const TELEGRAM_TOKEN = '6691235654:AAFsKfPaN3N5qAcGBT7NLdIZDHeMH5s61aE';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzheUEzR7g9fBb08Ik-8oCP2d4mCrwFeJNIPSiyQlMOt9F4rR-bGHC4bVh70j7rT8ROyg/exec';
+        
+        // 1. Отправляем в GAS (используем встроенный fetch)
+        try {
+          await fetch(GAS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              board_id: '',
+              columns_count: 0,
+              isNewNotification: false,
+              userData: {
+                username: message.from.username || '',
+                firstName: message.from.first_name || '',
+                lastName: message.from.last_name || ''
+              }
+            })
+          });
+          console.log('✅ Data sent to GAS');
+        } catch (gasError) {
+          console.log('⚠️ GAS error:', gasError.message);
+        }
+        
+        // 2. Отвечаем в Telegram
+        try {
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: `🆔 Ваш ID: <code>${chatId}</code>\n\n✅ Vercel + GAS работают!`,
+              parse_mode: 'HTML'
+            })
+          });
+          console.log('✅ Response sent to Telegram');
+        } catch (tgError) {
+          console.log('⚠️ Telegram error:', tgError.message);
+        }
       }
       
-      // Если не /start, всё равно отвечаем OK
       res.status(200).json({ status: 'OK' });
       
     } catch (error) {
-      console.error('Error:', error);
+      console.error('❌ Webhook error:', error);
       res.status(200).json({ status: 'OK' });
     }
   } else {
